@@ -1,21 +1,50 @@
+/* src/app/globals.css */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Custom styles for better default appearance */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 246, 248, 250;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+/* Improve default focus styles for better accessibility */
+:focus {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+/* Custom styling for the wallet adapter button */
+.wallet-adapter-button {
+  @apply px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 
+         transition duration-200 ease-in-out font-medium;
+}
+
+/* Hide scrollbar when wallet modal is open */
+body.wallet-adapter-modal-open {
+  overflow: hidden;
+}
+
+/* Responsive font sizing */
+@layer base {
+  html {
+    font-size: 16px;
+  }
+  @screen sm {
+    html {
+      font-size: 16px;
+    }
+  }
+  @screen lg {
+    html {
+      font-size: 18px;
+    }
+  }
 }
