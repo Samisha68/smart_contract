@@ -1,4 +1,4 @@
-# Bijlee Token - Solana Full Stack Application
+# Token transfering - Solana Full Stack Application
 
 A full-stack decentralized application built on Solana blockchain for managing and transferring Bijlee tokens. This project combines a Solana smart contract with a Next.js frontend interface.
 
