@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use anchor_spl::associated_token::AssociatedToken;
 
-declare_id!("Furu4efFjUJBs94Hc1MfJAg5nHZcP9y7F5qwtusTyG7i");
+declare_id!("your id");
 
 #[program]
 pub mod bijlee_token {
