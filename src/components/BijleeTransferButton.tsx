@@ -8,7 +8,7 @@ import { PublicKey, Transaction } from '@solana/web3.js';
 import { getAssociatedTokenAddress, createTransferInstruction } from '@solana/spl-token';
 import { TransferButtonProps, TransferState } from '@/types/bijlee';
 
-const BIJLEE_TOKEN_MINT = new PublicKey('HQbqWP4LSUYLySNXP8gRbXuKRy6bioH15CsrePQnfT86');
+const BIJLEE_TOKEN_MINT = new PublicKey('YOUR_MINTED_TOKEN');
 
 export const BijleeTransferButton: FC<TransferButtonProps> = ({
   onSuccess,
