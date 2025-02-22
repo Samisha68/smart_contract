@@ -9,7 +9,7 @@ import { getAssociatedTokenAddress, getAccount } from '@solana/spl-token';
 import { TokenAccountInfo, TokenMetadata } from '@/types/bijlee';
 
 // Replace with your token's mint address
-const BIJLEE_TOKEN_MINT = new PublicKey('HQbqWP4LSUYLySNXP8gRbXuKRy6bioH15CsrePQnfT86');
+const BIJLEE_TOKEN_MINT = new PublicKey('YOUR_MINTED_TOKEN');
 
 export const TokenInfo: FC = () => {
   const { connection } = useConnection();
