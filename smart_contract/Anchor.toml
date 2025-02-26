@@ -3,7 +3,7 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-smart_contract = "Furu4efFjUJBs94Hc1MfJAg5nHZcP9y7F5qwtusTyG7i"  # Your program ID will go here after deployment
+smart_contract = ""  # Your program ID will go here after deployment
 
 [registry]
 url = "https://api.apr.dev"
