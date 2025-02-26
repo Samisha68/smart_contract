@@ -42,9 +42,4 @@ body.wallet-adapter-modal-open {
       font-size: 16px;
     }
   }
-  @screen lg {
-    html {
-      font-size: 18px;
-    }
-  }
 }

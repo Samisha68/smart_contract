@@ -4,7 +4,7 @@
 
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import TokenInfo from '../components/tokeninfo';
-import BijleeTransferButton from '@/components/BijleeTransferButton';
+import BijleeTransferForm from '@/components/BijleeTransferForm';
 import { WalletContextProvider } from '../components/walletContextProvider';
 
 export default function Home() {
@@ -17,9 +17,9 @@ export default function Home() {
         </div>
 
         <div className="grid gap-8">
-          <TokenInfo />
-          <BijleeTransferButton 
-            onSuccess={() => console.log('Transfer successful')}
+          {/* Replace BijleeTransferButton with BijleeTransferForm */}
+          <BijleeTransferForm 
+            onSuccess={(signature) => console.log('Transfer successful:', signature)}
             onError={(error) => console.error('Transfer failed:', error)}
           />
         </div>

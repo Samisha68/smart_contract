@@ -1,18 +1,20 @@
-[toolchain]
-
 [features]
-resolution = true
+seeds = false
 skip-lint = false
 
-[programs.localnet]
-smart_contract = "Furu4efFjUJBs94Hc1MfJAg5nHZcP9y7F5qwtusTyG7i"
+[programs.devnet]
+smart_contract = "Furu4efFjUJBs94Hc1MfJAg5nHZcP9y7F5qwtusTyG7i"  # Your program ID will go here after deployment
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+
+[dependencies]
+anchor-lang = "0.30.0"
+anchor-spl = "0.30.0"

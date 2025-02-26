@@ -1,131 +1,145 @@
-// src/components/BijleeTransferButton.tsx
-
 'use client';
 
-import { FC, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, Transaction } from '@solana/web3.js';
-import { getAssociatedTokenAddress, createTransferInstruction } from '@solana/spl-token';
-import { TransferButtonProps, TransferState } from '@/types/bijlee';
+import { executeTokenTransfer } from '../app/utils/tokenOperations';
 
-const BIJLEE_TOKEN_MINT = new PublicKey('HQbqWP4LSUYLySNXP8gRbXuKRy6bioH15CsrePQnfT86');
+interface BijleeTransferButtonProps {
+  recipientAddress: string;
+  amount: number;
+  onSuccess?: (signature: string) => void;
+  onError?: (error: Error) => void;
+  onStatusChange?: (status: 'idle' | 'processing' | 'success' | 'error') => void;
+  className?: string;
+  label?: string;
+  refreshTokenInfo?: () => Promise<void>;
+}
 
-export const BijleeTransferButton: FC<TransferButtonProps> = ({
+const BijleeTransferButton = ({
+  recipientAddress,
+  amount,
   onSuccess,
   onError,
-  className = ''
-}) => {
+  onStatusChange,
+  className = '',
+  label = 'Send BIJLEE',
+  refreshTokenInfo
+}: BijleeTransferButtonProps) => {
   const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
+  const wallet = useWallet();
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [transactionStatus, setTransactionStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
+  const [transactionSignature, setTransactionSignature] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const [state, setState] = useState<TransferState>({
-    isLoading: false,
-    amount: '',
-    recipient: '',
-    error: null,
-    success: false
-  });
+  const handleTransfer = async () => {
+    if (!wallet.connected || !wallet.publicKey) {
+      alert('Please connect your wallet first');
+      return;
+    }
 
-  const resetState = () => {
-    setState({
-      isLoading: false,
-      amount: '',
-      recipient: '',
-      error: null,
-      success: false
-    });
-  };
+    if (!recipientAddress) {
+      alert('Recipient address is required');
+      return;
+    }
 
-  const handleTransfer = useCallback(async () => {
-    if (!publicKey) return;
+    if (!amount || amount <= 0) {
+      alert('Please enter a valid amount');
+      return;
+    }
+
+    setIsLoading(true);
+    setTransactionStatus('processing');
+    
+    if (onStatusChange) {
+      onStatusChange('processing');
+    }
 
     try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-      // Validate recipient address
-      const recipientPubKey = new PublicKey(state.recipient);
-
-      // Get token accounts
-      const senderTokenAccount = await getAssociatedTokenAddress(
-        BIJLEE_TOKEN_MINT,
-        publicKey
+      const signature = await executeTokenTransfer(
+        connection,
+        wallet,
+        recipientAddress,
+        amount
       );
 
-      const recipientTokenAccount = await getAssociatedTokenAddress(
-        BIJLEE_TOKEN_MINT,
-        recipientPubKey
-      );
-
-      // Create transfer instruction
-      const transferInstruction = createTransferInstruction(
-        senderTokenAccount,
-        recipientTokenAccount,
-        publicKey,
-        BigInt(parseFloat(state.amount)),
-      );
-
-      // Create and send transaction
-      const transaction = new Transaction().add(transferInstruction);
-      const signature = await sendTransaction(transaction, connection);
+      setTransactionSignature(signature);
+      setTransactionStatus('success');
       
-      // Wait for confirmation
-      await connection.confirmTransaction(signature, 'confirmed');
-
-      setState(prev => ({ ...prev, success: true }));
-      onSuccess?.();
-
+      if (onStatusChange) {
+        onStatusChange('success');
+      }
+      
+      if (onSuccess) {
+        onSuccess(signature);
+      }
+      
+      // Refresh token info if provided
+      if (refreshTokenInfo) {
+        setTimeout(refreshTokenInfo, 2000); // Give blockchain time to update
+      }
+      
     } catch (error) {
-      console.error('Transfer failed:', error);
-      setState(prev => ({ 
-        ...prev, 
-        error: error instanceof Error ? error.message : 'Transfer failed' 
-      }));
-      onError?.(error instanceof Error ? error : new Error('Transfer failed'));
+      console.error('Transaction failed:', error);
+      
+      setTransactionStatus('error');
+      setErrorMessage(error instanceof Error ? error.message : 'Unknown error');
+      
+      if (onStatusChange) {
+        onStatusChange('error');
+      }
+      
+      if (error instanceof Error && onError) {
+        onError(error);
+      } else {
+        alert(`Transaction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
     } finally {
-      setState(prev => ({ ...prev, isLoading: false }));
+      setIsLoading(false);
     }
-  }, [publicKey, connection, sendTransaction, state.amount, state.recipient, onSuccess, onError]);
-
-  if (!publicKey) {
-    return null;
-  }
+  };
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      <div className="space-y-2">
-        <input
-          type="text"
-          value={state.recipient}
-          onChange={(e) => setState(prev => ({ ...prev, recipient: e.target.value }))}
-          placeholder="Recipient Address"
-          className="w-full px-3 py-2 border rounded-md"
-          disabled={state.isLoading}
-        />
-        <input
-          type="number"
-          value={state.amount}
-          onChange={(e) => setState(prev => ({ ...prev, amount: e.target.value }))}
-          placeholder="Amount"
-          className="w-full px-3 py-2 border rounded-md"
-          disabled={state.isLoading}
-        />
-      </div>
-
+    <div>
       <button
+        className={`px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed ${className}`}
         onClick={handleTransfer}
-        disabled={state.isLoading || !state.amount || !state.recipient}
-        className="w-full px-4 py-2 bg-blue-600 text-white rounded-md
-                 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        disabled={isLoading || !wallet.connected}
       >
-        {state.isLoading ? 'Processing...' : 'Transfer Tokens'}
+        {isLoading ? 'Processing...' : label}
       </button>
-
-      {state.error && (
-        <div className="text-red-600 text-sm">{state.error}</div>
+      
+      {transactionStatus === 'processing' && (
+        <div className="mt-3 p-3 bg-blue-50 rounded-md text-blue-700">
+          <p>Processing transaction... Please wait</p>
+        </div>
       )}
-
-      {state.success && (
-        <div className="text-green-600 text-sm">Transfer successful!</div>
+      
+      {transactionStatus === 'success' && transactionSignature && (
+        <div className="mt-3 p-3 bg-green-50 rounded-md">
+          <p className="text-green-700 font-medium">Transaction Successful!</p>
+          <p className="text-sm text-green-600 mt-1">
+            Your tokens have been sent successfully.
+          </p>
+          <div className="mt-2">
+            <a 
+              href={`https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline text-sm"
+            >
+              View transaction on Solana Explorer
+            </a>
+          </div>
+        </div>
+      )}
+      
+      {transactionStatus === 'error' && (
+        <div className="mt-3 p-3 bg-red-50 rounded-md">
+          <p className="text-red-700 font-medium">Transaction Failed</p>
+          <p className="text-sm text-red-600 mt-1">{errorMessage || 'An unknown error occurred'}</p>
+        </div>
       )}
     </div>
   );

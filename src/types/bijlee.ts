@@ -1,17 +1,14 @@
 // src/types/bijlee.ts
-
 import { PublicKey } from '@solana/web3.js';
+import { ReactNode } from 'react';
 
-// Interface for token transfer state management
-export interface TransferState {
-  isLoading: boolean;
-  amount: string;
-  recipient: string;
-  error: string | null;
-  success: boolean;
+// Types for wallet context provider
+export interface WalletContextProviderProps {
+  children: ReactNode;
+  endpoint?: string;
 }
 
-// Interface for token account information
+// Types for token info component
 export interface TokenAccountInfo {
   mint: PublicKey;
   owner: PublicKey;
@@ -19,29 +16,18 @@ export interface TokenAccountInfo {
   decimals: number;
 }
 
-// Interface for token metadata
 export interface TokenMetadata {
   name: string;
   symbol: string;
   totalSupply: number;
 }
 
-// Props for the transfer button component
-export interface TransferButtonProps {
-  onSuccess?: () => void;
-  onError?: (error: Error) => void;
-  className?: string;
-}
+// Types for transaction status
+export type TransactionStatus = 'idle' | 'processing' | 'success' | 'error';
 
-// Props for the wallet context provider
-export interface WalletContextProviderProps {
-  children: React.ReactNode;
-  endpoint?: string;
-}
-
-// Interface for transaction results
-export interface TransactionResult {
-  signature: string;
-  success: boolean;
+// Types for transfer result
+export interface TransferResult {
+  status: TransactionStatus;
+  signature?: string;
   error?: string;
 }
