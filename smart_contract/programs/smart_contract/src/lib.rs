@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
-declare_id!("Furu4efFjUJBs94Hc1MfJAg5nHZcP9y7F5qwtusTyG7i"); // Replace with your program ID after deployment
+declare_id!("Your ProgramID"); // Replace with your program ID after deployment
 
 #[program]
 pub mod smart_contract {
